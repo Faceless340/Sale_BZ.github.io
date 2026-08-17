@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Продажа BZ — Калькулятор</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #5a5a5a;
+      --accent-hover: #56d364;
+      --danger: #f85149;
+      --danger-hover: #ff7b72;
+      --input-bg: #0d1117;
+      --highlight: #238636;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      background-image: 
+        radial-gradient(ellipse at top, #353535 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, #1a1a2a 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+      text-shadow: 0 0 20px 353535(63, 185, 80, 0.3);
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.95rem;
+    }
+
+    /* Центральное меню добавления */
+    .add-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .add-panel h2 {
+      font-size: 1.15rem;
+      margin-bottom: 18px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+
+    select option, select optgroup {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .qty-group {
+      max-width: 120px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--highlight);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    /* Таблица корзины */
+    .cart-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .cart-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-header h2 {
+      font-size: 1.15rem;
+      color: var(--accent);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      background: #1c2128;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(63, 185, 80, 0.04);
+    }
+
+    .qty-input {
+      width: 70px;
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+    .price {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .sum-ours {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+
+    /* Итоги */
+    .totals {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      background: #1c2128;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+    }
+
+    .total-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .total-item .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .total-item .value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .total-item.highlight .value {
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+
+    .diff-box {
+      grid-column: 1 / -1;
+      margin-top: 8px;
+      padding: 12px 14px;
+      background: rgba(63, 185, 80, 0.08);
+      border: 1px solid rgba(63, 185, 80, 0.25);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .diff-box .label {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .diff-box .value {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .note {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: rgba(248, 81, 73, 0.08);
+      border: 1px solid rgba(248, 81, 73, 0.25);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .note strong {
+      color: var(--danger);
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+      }
+      .qty-group {
+        max-width: none;
+      }
+      .totals {
+        grid-template-columns: 1fr;
+      }
+      th, td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>☢ Продажа BZ</h1>
+      <p>Калькулятор продажи мутанины, артефактов и снаряжения</p>
+    </header>
+
+    <!-- Центральное меню добавления -->
+    <div class="add-panel">
+      <h2>＋ Добавить предмет</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="itemSelect">Предмет</label>
+          <select id="itemSelect">
+            <option value="" disabled selected>— Выберите предмет —</option>
+            <optgroup label="Мутанина">
+              <option value="Ухо химеры|30000|45000">Ухо химеры</option>
+              <option value="Коготь химеры|30000|45000">Коготь химеры</option>
+              <option value="Рука зомби|35000|55000">Рука зомби</option>
+              <option value="Зубы шипастого|35000|45000">Зубы шипастого</option>
+              <option value="Язык пиявки|35000|45000">Язык пиявки</option>
+              <option value="Глаз плоти|30000|50000">Глаз плоти</option>
+              <option value="Хвост собаки|30000|45000">Хвост собаки</option>
+              <option value="Коготь мут. медведя|30000|45000">Коготь мут. медведя</option>
+              <option value="Рука излома|20000|33000">Рука излома</option>
+              <option value="Копыто кобана|30000|45000">Копыто кобана</option>
+              <option value="Голова тушкана|30000|45000">Голова тушкана</option>
+              <option value="Лапа крысоволка|35000|45000">Лапа крысоволка</option>
+              <option value="Ухо телепса|35000|45000">Ухо телепса</option>
+              <option value="Часть мухомора|35000|45000">Часть мухомора</option>
+              <option value="Челюсть с языком|35000|45000">Челюсть с языком</option>
+              <option value="Коготь трупожора|35000|45000">Коготь трупожора</option>
+              <option value="Крастное ухо мозгодава|35000|45000">Крастное ухо мозгодава</option>
+              <option value="Лапа кота-Баюна|35000|45000">Лапа кота-Баюна</option>
+              <option value="Ухо шныря|20000|30000">Ухо шныря</option>
+              <option value="Хвост псевдособаки|7500|15000">Хвост псевдособаки</option>
+              <option value="Щупальце кровососа|10000|20000">Щупальце кровососа</option>
+              <option value="Рога мутанта|100000|135000">Рога мутанта</option>
+              <option value="Кисть костереза|25000|35000">Кисть костереза</option>
+              <option value="Щупальце костереза|25000|35000">Щупальце костереза</option>
+              <option value="Кислый нарост|45000|70000">Кислый нарост</option>
+              <option value="Ухо мозгодава|20000|30000">Ухо мозгодава</option>
+              <option value="Глаз теневника|20000|30000">Глаз теневника</option>
+              <option value="Голова рептилойда|80000|100000">Голова рептилойда</option>
+              <option value="Гнилое мясо|5000|7000">Гнилое мясо</option>
+              <option value="Кишки мутанта|5000|7000">Кишки мутанта</option>
+              <option value="Жетон подопытного|45000|55000">Жетон подопытного</option>
+              <option value="Биомасса мутанта|20000|30000">Биомасса мутанта</option>
+              <option value="Субстанция|35000|50000">Субстанция</option>
+            </optgroup>
+            <optgroup label="Мясо медведей">
+              <option value="Кровавое мясо|74|90">Кровавое мясо</option>
+              <option value="Титановое мясо|160|200">Титановое мясо</option>
+            </optgroup>
+            <optgroup label="Исследования">
+              <option value="Иследования|25000|30000">Иследования</option>
+            </optgroup>
+            <optgroup label="Артефакты">
+              <option value="Душа|600000|700000">Душа</option>
+              <option value="Компас|1750000|2000000">Компас</option>
+              <option value="Бусы бабки|1750000|2000000">Бусы бабки</option>
+              <option value="Медуза|1750000|2000000">Медуза</option>
+              <option value="Кровь камня|1750000|2000000">Кровь камня</option>
+              <option value="Огненый шар|1750000|2000000">Огненый шар</option>
+              <option value="Золотая рыбка|1750000|2000000">Золотая рыбка</option>
+              <option value="Монолит|1750000|2000000">Монолит</option>
+              <option value="Гравиконце|1750000|2000000">Гравиконце</option>
+              <option value="Батарейка|1750000|2000000">Батарейка</option>
+              <option value="Кристал|1750000|2000000">Кристал</option>
+            </optgroup>
+            <optgroup label="Ножи">
+              <option value="Нож 1 ранг|35000|55000">Нож 1 ранг</option>
+              <option value="Нож 2 ранг|100000|130000">Нож 2 ранг</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="form-group qty-group">
+          <label for="qtyInput">Количество</label>
+          <input type="number" id="qtyInput" min="1" value="1" step="1">
+        </div>
+
+        <button class="btn btn-primary" id="addBtn">
+          Добавить
+        </button>
+      </div>
+    </div>
+
+    <!-- Корзина / список -->
+    <div class="cart-panel">
+      <div class="cart-header">
+        <h2>Список предметов</h2>
+        <button class="btn btn-secondary" id="clearBtn" style="margin:0; padding:6px 12px; font-size:0.8rem;">Очистить всё</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Предмет</th>
+              <th>Кол-во</th>
+              <th>Цена 2 ранг</th>
+              <th>Цена у нас</th>
+              <th>Сумма 2 ранг</th>
+              <th>Сумма у нас</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cartBody">
+            <!-- строки добавляются JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <div style="font-size:2rem; opacity:0.3;">📦</div>
+        <p>Список пуст. Добавьте предметы выше.</p>
+      </div>
+
+      <div class="totals" id="totalsBlock" style="display:none;">
+        <div class="total-item">
+          <span class="label">Общая сумма (2 ранг)</span>
+          <span class="value" id="totalRank2">0</span>
+        </div>
+        <div class="total-item highlight">
+          <span class="label">Общая сумма (у нас)</span>
+          <span class="value" id="totalOurs">0</span>
+        </div>
+        <div class="diff-box">
+          <div>
+            <span class="label">Отдать (сумма 2 ранга + 50%):</span>
+            <span class="value" id="toGive">0</span>
+          </div>
+          <div>
+            <span class="label">Остаётся:</span>
+            <span class="value" id="remain">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Примечание:</strong> Возможно сайт будет баговать.
+    </div>
+  </div>
+
+  <script>
+    // Данные корзины: { name, priceRank2, priceOurs, qty }
+    let cart = [];
+
+    const itemSelect = document.getElementById('itemSelect');
+    const qtyInput = document.getElementById('qtyInput');
+    const addBtn = document.getElementById('addBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const cartBody = document.getElementById('cartBody');
+    const emptyState = document.getElementById('emptyState');
+    const totalsBlock = document.getElementById('totalsBlock');
+
+    function formatNumber(n) {
+      return Math.round(n).toLocaleString('ru-RU');
+    }
+
+    function render() {
+      cartBody.innerHTML = '';
+
+      if (cart.length === 0) {
+        emptyState.style.display = 'block';
+        totalsBlock.style.display = 'none';
+        document.querySelector('table').style.display = 'none';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      totalsBlock.style.display = 'grid';
+      document.querySelector('table').style.display = 'table';
+
+      let sumRank2 = 0;
+      let sumOurs = 0;
+
+      cart.forEach((item, idx) => {
+        const s2 = item.priceRank2 * item.qty;
+        const so = item.priceOurs * item.qty;
+        sumRank2 += s2;
+        sumOurs += so;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.name}</td>
+          <td>
+            <input type="number" class="qty-input" min="1" value="${item.qty}" data-idx="${idx}">
+          </td>
+          <td class="price">${formatNumber(item.priceRank2)}</td>
+          <td class="price">${formatNumber(item.priceOurs)}</td>
+          <td class="price">${formatNumber(s2)}</td>
+          <td class="price sum-ours">${formatNumber(so)}</td>
+          <td>
+            <button class="btn btn-danger" data-remove="${idx}">✕</button>
+          </td>
+        `;
+        cartBody.appendChild(tr);
+      });
+
+      // Итоги
+      // Отдать = сумма 2 ранга + 50% = 0.5 × сумма 2 ранга
+      const diff = sumRank2 + sumOurs ;
+      const toGive = Math.round(diff * 0.5);
+      const remain = sumOurs - toGive;
+
+      document.getElementById('totalRank2').textContent = formatNumber(sumRank2);
+      document.getElementById('totalOurs').textContent = formatNumber(sumOurs);
+      document.getElementById('toGive').textContent = formatNumber(toGive);
+      document.getElementById('remain').textContent = formatNumber(remain);
+
+      // Слушатели на количество и удаление
+      cartBody.querySelectorAll('.qty-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const idx = +e.target.dataset.idx;
+          let val = parseInt(e.target.value, 10);
+          if (isNaN(val) || val < 1) val = 1;
+          cart[idx].qty = val;
+          render();
+        });
+      });
+
+      cartBody.querySelectorAll('[data-remove]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = +e.target.dataset.remove;
+          cart.splice(idx, 1);
+          render();
+        });
+      });
+    }
+
+    addBtn.addEventListener('click', () => {
+      const val = itemSelect.value;
+      if (!val) {
+        itemSelect.focus();
+        return;
+      }
+
+      let qty = parseInt(qtyInput.value, 10);
+      if (isNaN(qty) || qty < 1) qty = 1;
+
+      const [name, p2, po] = val.split('|');
+      const priceRank2 = parseFloat(p2);
+      const priceOurs = parseFloat(po);
+
+      // Если уже есть — увеличиваем количество
+      const existing = cart.find(i => i.name === name);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        cart.push({ name, priceRank2, priceOurs, qty });
+      }
+
+      // Сброс
+      itemSelect.value = '';
+      qtyInput.value = 1;
+      render();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if (cart.length && confirm('Очистить весь список?')) {
+        cart = [];
+        render();
+      }
+    });
+
+    // Enter в поле количества тоже добавляет
+    qtyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addBtn.click();
+    });
+
+    // Инициализация
+    render();
+  </script>
+</body>
+</html>
