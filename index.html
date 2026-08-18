@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мутантина и артефакты</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #5a5a5a;
+    --accent-hover: #56d364;
+    --danger: #f85149;
+    --highlight: #238636;
+    --header-bg: #1c2128;
+    --row-hover: rgba(63, 185, 80, 0.04);
+    --section-bg: #21262d;
+    --qty-bg: rgba(35, 134, 54, 0.15);
+    --qty-focus: rgba(35, 134, 54, 0.3);
+    --total-bg: rgba(35, 134, 54, 0.12);
+    --calc-bg: rgba(56, 139, 253, 0.12);
+    --result-bg: rgba(248, 81, 73, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 0.9rem;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    background-image:
+      radial-gradient(ellipse at top, #353535 0%, transparent 50%),
+      radial-gradient(ellipse at bottom, #1a1a2a 0%, transparent 50%);
+    padding: 24px 16px 48px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 20px; }
+  header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: 0.5px; color: var(--accent); }
+  header p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+
+  .search-bar {
+    margin-bottom: 20px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 12px 40px 12px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-bar input:focus { border-color: var(--highlight); }
+  .search-bar input::placeholder { color: var(--muted); }
+  .search-bar .clear {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 1.2rem; line-height: 1; display: none; padding: 0;
+  }
+  .search-bar .clear:hover { color: var(--text); }
+
+  .wrapper { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .table-card {
+    flex: 1; min-width: 0;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .table-wrap { overflow-x: auto; max-height: 70vh; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th {
+    text-align: left; padding: 12px 14px; background: var(--header-bg);
+    color: var(--muted); font-weight: 600; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 2;
+  }
+  th:not(:first-child) { text-align: center; }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
+  tr:hover td:not(.section-cell) { background: var(--row-hover); }
+  td.name { text-align: left; min-width: 170px; white-space: nowrap; }
+  td.price { text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); min-width: 90px; }
+  td.qty { text-align: center; background: var(--qty-bg); min-width: 70px; }
+  td.qty input {
+    width: 64px; border: 1px solid transparent; background: transparent;
+    text-align: center; font-family: inherit; font-size: inherit;
+    color: var(--accent-hover); font-weight: 600; outline: none;
+    border-radius: 6px; padding: 4px 6px;
+  }
+  td.qty input:focus { background: var(--qty-focus); border-color: var(--highlight); }
+  td.sum { text-align: center; font-variant-numeric: tabular-nums; min-width: 90px; }
+  td.sum-ours { color: var(--accent-hover); font-weight: 600; }
+  tr.section td {
+    background: var(--section-bg); font-weight: 700; text-align: left;
+    color: var(--accent-hover); font-size: 0.8rem; text-transform: uppercase;
+    letter-spacing: 0.5px; padding: 10px 14px;
+  }
+  tr.hidden { display: none; }
+
+  .side { min-width: 260px; max-width: 300px; position: sticky; top: 24px; }
+  .side-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .side table { width: 100%; table-layout: fixed; }
+  .side th {
+    text-align: center; position: static; font-size: 0.68rem;
+    padding: 10px 8px;
+  }
+  .side .total td {
+    background: var(--total-bg); font-weight: 700; text-align: center;
+    font-size: 1.05rem; color: var(--accent-hover); padding: 12px 8px;
+  }
+  .side .calc td { background: var(--calc-bg); padding: 10px 12px; }
+  .side .result td { background: var(--result-bg); font-weight: 700; padding: 10px 12px; }
+  .side td.label {
+    text-align: left; font-weight: 600; color: var(--muted);
+    font-size: 0.85rem; width: 50%;
+  }
+  .side td.value {
+    text-align: right; font-variant-numeric: tabular-nums;
+    color: var(--text); font-weight: 600; width: 50%;
+  }
+  .side .result td.value { color: var(--accent-hover); }
+
+  .note {
+    margin-top: 16px; padding: 12px 14px;
+    background: rgba(248, 81, 73, 0.08);
+    border: 1px solid rgba(248, 81, 73, 0.25);
+    border-radius: 8px; font-size: 0.8rem; color: var(--muted); line-height: 1.55;
+  }
+  .note strong { color: var(--danger); }
+  .no-results {
+    padding: 32px; text-align: center; color: var(--muted); display: none;
+  }
+  @media (max-width: 800px) {
+    .wrapper { flex-direction: column; }
+    .side { max-width: none; width: 100%; position: static; }
+    .table-wrap { max-height: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>☢ Продажа BZ</h1>
+      <p>Калькулятор продажи</p>
+    </header>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Поиск предмета..." autocomplete="off" spellcheck="false">
+      <button type="button" class="clear" id="clearSearch" title="Очистить">×</button>
+    </div>
+
+    <div class="wrapper">
+      <div class="table-card">
+        <div class="table-wrap">
+          <table id="mainTable">
+            <thead>
+              <tr>
+                <th>Предмет</th>
+                <th>Цена 2 ранг</th>
+                <th>Цена у нас</th>
+                <th>Кол-во</th>
+                <th>Сумма 2 ранг</th>
+                <th>Сумма у нас</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+          <div class="no-results" id="noResults">Ничего не найдено</div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Сумма 2 ранг</th>
+                <th>Сумма у нас</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="total">
+                <td id="total2">0</td>
+                <td id="totalUs">0</td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <tbody>
+              <tr class="calc">
+                <td class="label">Разница</td>
+                <td class="value" id="diff">0</td>
+              </tr>
+              <tr class="calc">
+                <td class="label">50%</td>
+                <td class="value" id="half">0</td>
+              </tr>
+              <tr class="result">
+                <td class="label">Отдать</td>
+                <td class="value" id="give">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>Примечание:</strong><br>
+          Зелёные ячейки (Кол-во) — редактируемые<br>
+          Суммы и итоги пересчитываются автоматически<br>
+          Поиск фильтрует список по названию<br>
+          Мясо медведей, гнилое мясо и кишки мутанта пока что не добавлены
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+const sections = [
+  { title: "Мутанина", items: [
+    { name: "Ухо химеры", p2: 30000, pus: 45000, qty: 0 },
+    { name: "Коготь химеры", p2: 30000, pus: 45000, qty: 0 },
+    { name: "Рука зомби", p2: 35000, pus: 55000, qty: 0 },
+    { name: "Зубы шипастого", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Язык пиявки", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Глаз плоти", p2: 30000, pus: 50000, qty: 0 },
+    { name: "Хвост собаки", p2: 30000, pus: 45000, qty: 0 },
+    { name: "Коготь мут. медведя", p2: 30000, pus: 45000, qty: 0 },
+    { name: "Рука излома", p2: 20000, pus: 33000, qty: 0 },
+    { name: "Копыто кабана", p2: 30000, pus: 45000, qty: 0 },
+    { name: "Голова тушкана", p2: 30000, pus: 45000, qty: 0 },
+    { name: "Лапа крысоволка", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Ухо телёса", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Часть мухомора", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Челюсть с языком", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Коготь трупожора", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Красное ухо мозгодава", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Лапа кота-Баюна", p2: 35000, pus: 45000, qty: 0 },
+    { name: "Ухо шныря", p2: 20000, pus: 30000, qty: 0 },
+    { name: "Хвост псевдособаки", p2: 7500, pus: 15000, qty: 0 },
+    { name: "Щупальце кровососа", p2: 10000, pus: 20000, qty: 0 },
+    { name: "Рога мутанта", p2: 100000, pus: 135000, qty: 0 },
+    { name: "Кисть костереза", p2: 25000, pus: 35000, qty: 0 },
+    { name: "Щупальце костереза", p2: 25000, pus: 35000, qty: 0 },
+    { name: "Кислый нарост", p2: 45000, pus: 70000, qty: 0 },
+    { name: "Ухо мозгодава", p2: 20000, pus: 30000, qty: 0 },
+    { name: "Глаз теневника", p2: 20000, pus: 30000, qty: 0 },
+    { name: "Голова рептилойда", p2: 80000, pus: 100000, qty: 0 },
+    // { name: "Гнилое мясо", p2: 5000, pus: 7000, qty: 0 },
+    // { name: "Кишки мутанта", p2: 5000, pus: 7000, qty: 0 },
+    { name: "Жетон подопытного", p2: 45000, pus: 55000, qty: 0 },
+    { name: "Биомасса мутанта", p2: 20000, pus: 30000, qty: 0 },
+    { name: "Субстанция", p2: 35000, pus: 50000, qty: 0 },
+  ]},
+  // { title: "Мясо медведей", items: [ 
+  //   { name: "Кровавое мясо", p2: 74, pus: 90, qty: 0 },
+  //   { name: "Титановое мясо", p2: 160, pus: 200, qty: 0 },
+  // ]},
+  { title: "Исследования", items: [
+    { name: "Исследования", p2: 25000, pus: 30000, qty: 0 },
+  ]},
+  { title: "Артефакты", items: [
+    { name: "Душа", p2: 600000, pus: 700000, qty: 0 },
+    { name: "Компас", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Бусы бабки", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Медуза", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Кровь камня", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Огненный шар", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Золотая рыбка", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Монолит", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Гравиконце", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Батарейка", p2: 1750000, pus: 2000000, qty: 0 },
+    { name: "Кристалл", p2: 1750000, pus: 2000000, qty: 0 },
+  ]},
+  { title: "Ножи", items: [
+    { name: "Нож 1 ранг", p2: 35000, pus: 55000, qty: 0 },
+    { name: "Нож 2 ранг", p2: 100000, pus: 130000, qty: 0 },
+  ]}
+];
+
+let flat = [];
+
+function fmt(n) { return Math.round(n).toLocaleString('ru-RU'); }
+
+function buildRow(item, flatIdx) {
+  const tr = document.createElement('tr');
+  tr.dataset.flat = flatIdx;
+  tr.dataset.name = item.name.toLowerCase();
+  tr.innerHTML =
+    '<td class="name">' + item.name + '</td>' +
+    '<td class="price">' + fmt(item.p2) + '</td>' +
+    '<td class="price">' + fmt(item.pus) + '</td>' +
+    '<td class="qty"><input type="number" min="0" value="' + item.qty + '" data-flat="' + flatIdx + '"></td>' +
+    '<td class="sum" data-sum2>0</td>' +
+    '<td class="sum sum-ours" data-sumus>0</td>';
+  return tr;
+}
+
+function render() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  flat = [];
+
+  sections.forEach(function(sec) {
+    const secTr = document.createElement('tr');
+    secTr.className = 'section';
+    secTr.dataset.section = sec.title.toLowerCase();
+    secTr.innerHTML = '<td class="section-cell" colspan="6">' + sec.title + '</td>';
+    tbody.appendChild(secTr);
+
+    sec.items.forEach(function(item) {
+      var flatIdx = flat.length;
+      flat.push(item);
+      tbody.appendChild(buildRow(item, flatIdx));
+    });
+  });
+
+  tbody.querySelectorAll('input').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      var idx = +inp.dataset.flat;
+      var val = Math.max(0, parseInt(inp.value) || 0);
+      flat[idx].qty = val;
+      recalculate();
+    });
+  });
+
+  recalculate();
+  applyFilter();
+}
+
+function recalculate() {
+  var total2 = 0, totalUs = 0;
+  document.querySelectorAll('#tbody tr[data-flat]').forEach(function(tr) {
+    var idx = +tr.dataset.flat;
+    var item = flat[idx];
+    var s2 = item.p2 * item.qty;
+    var sus = item.pus * item.qty;
+    tr.querySelector('[data-sum2]').textContent = fmt(s2);
+    tr.querySelector('[data-sumus]').textContent = fmt(sus);
+    total2 += s2;
+    totalUs += sus;
+  });
+  document.getElementById('total2').textContent = fmt(total2);
+  document.getElementById('totalUs').textContent = fmt(totalUs);
+  var diff = totalUs - total2;
+  var half = Math.round(diff * 0.5);
+  var give = totalUs - half;
+  document.getElementById('diff').textContent = fmt(diff);
+  document.getElementById('half').textContent = fmt(half);
+  document.getElementById('give').textContent = fmt(give);
+}
+
+function applyFilter() {
+  var q = document.getElementById('searchInput').value.trim().toLowerCase();
+  var clearBtn = document.getElementById('clearSearch');
+  clearBtn.style.display = q ? 'block' : 'none';
+
+  var visibleCount = 0;
+  var sectionHasVisible = {};
+
+  document.querySelectorAll('#tbody tr[data-flat]').forEach(function(tr) {
+    var match = !q || tr.dataset.name.indexOf(q) !== -1;
+    tr.classList.toggle('hidden', !match);
+    if (match) {
+      visibleCount++;
+      var prev = tr.previousElementSibling;
+      while (prev && !prev.classList.contains('section')) prev = prev.previousElementSibling;
+      if (prev) sectionHasVisible[prev.dataset.section] = true;
+    }
+  });
+
+  document.querySelectorAll('#tbody tr.section').forEach(function(tr) {
+    var show = !q || sectionHasVisible[tr.dataset.section];
+    tr.classList.toggle('hidden', !show);
+  });
+
+  document.getElementById('noResults').style.display = (visibleCount === 0 && q) ? 'block' : 'none';
+}
+
+document.getElementById('searchInput').addEventListener('input', applyFilter);
+document.getElementById('clearSearch').addEventListener('click', function() {
+  document.getElementById('searchInput').value = '';
+  applyFilter();
+  document.getElementById('searchInput').focus();
+});
+
+render();
+</script>
+</body>
+</html>
