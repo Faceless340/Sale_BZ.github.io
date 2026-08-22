@@ -275,7 +275,29 @@
     display: none;
   }
 
-  /* ===== Desktop (wide) ===== */
+  .banner-wrap {
+    margin-top: 28px;
+    text-align: center;
+    padding: 16px 0 8px;
+  }
+  .banner-wrap a {
+    display: inline-block;
+    line-height: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+  .banner-wrap a:hover {
+    opacity: 0.9;
+    border-color: var(--highlight);
+  }
+  .banner-wrap img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
   @media (min-width: 901px) {
     body { padding: 24px 20px 48px; font-size: 15px; }
     .table-wrap { max-height: 72vh; }
@@ -285,7 +307,6 @@
     td.qty input { width: 52px; font-size: 0.9rem; }
   }
 
-  /* ===== Tablet / narrow desktop ===== */
   @media (max-width: 900px) {
     .wrapper { flex-direction: column; }
     .side {
@@ -299,7 +320,6 @@
     .table-wrap { max-height: none; }
   }
 
-  /* ===== Mobile phones ===== */
   @media (max-width: 600px) {
     body { padding: 12px 8px 32px; font-size: 14px; }
     header { margin-bottom: 12px; }
@@ -347,9 +367,9 @@
     .side .calc td, .side .result td { padding: 9px 10px; }
     .side td.label { font-size: 0.8rem; }
     .note { font-size: 0.75rem; padding: 10px 12px; }
+    .banner-wrap { margin-top: 20px; padding: 12px 0 4px; }
   }
 
-  /* Very small screens */
   @media (max-width: 380px) {
     td.name { min-width: 95px; max-width: 120px; font-size: 0.78rem; }
     td.price { min-width: 54px; font-size: 0.72rem; }
@@ -430,6 +450,12 @@
         </div>
       </div>
     </div>
+
+    <div class="banner-wrap">
+      <a href="https://wargm.ru/server/80543" target="_blank" rel="noopener noreferrer">
+        <img src="https://wargm.ru/primg468/80543.png" alt="wargm.ru - рейтинг серверов" width="468" height="60">
+      </a>
+    </div>
   </div>
 <script>
 const sections = [
@@ -462,16 +488,10 @@ const sections = [
     { name: "Ухо мозгодава", p2: 20000, pus: 30000, qty: 0 },
     { name: "Глаз теневника", p2: 20000, pus: 30000, qty: 0 },
     { name: "Голова рептилойда", p2: 80000, pus: 100000, qty: 0 },
-    // { name: "Гнилое мясо", p2: 5000, pus: 7000, qty: 0 },
-    // { name: "Кишки мутанта", p2: 5000, pus: 7000, qty: 0 },
     { name: "Жетон подопытного", p2: 45000, pus: 55000, qty: 0 },
     { name: "Биомасса мутанта", p2: 20000, pus: 30000, qty: 0 },
     { name: "Субстанция", p2: 35000, pus: 50000, qty: 0 },
   ]},
-  // { title: "Мясо медведей", items: [ 
-  //   { name: "Кровавое мясо", p2: 74, pus: 90, qty: 0 },
-  //   { name: "Титановое мясо", p2: 160, pus: 200, qty: 0 },
-  // ]},
   { title: "Исследования", items: [
     { name: "Исследования", p2: 25000, pus: 30000, qty: 0 },
   ]},
