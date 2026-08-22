@@ -2,8 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Мутантина и артефакты</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Продажа BZ — Калькулятор</title>
 <style>
   :root {
     --bg: #0d1117;
@@ -16,138 +18,351 @@
     --danger: #f85149;
     --highlight: #238636;
     --header-bg: #1c2128;
-    --row-hover: rgba(63, 185, 80, 0.04);
+    --row-hover: rgba(63, 185, 80, 0.06);
     --section-bg: #21262d;
     --qty-bg: rgba(35, 134, 54, 0.15);
     --qty-focus: rgba(35, 134, 54, 0.3);
     --total-bg: rgba(35, 134, 54, 0.12);
     --calc-bg: rgba(56, 139, 253, 0.12);
     --result-bg: rgba(248, 81, 73, 0.12);
+    --btn-bg: #21262d;
+    --btn-hover: #30363d;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    font-size: 0.9rem;
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    min-height: 100dvh;
     line-height: 1.5;
     background-image:
       radial-gradient(ellipse at top, #353535 0%, transparent 50%),
       radial-gradient(ellipse at bottom, #1a1a2a 0%, transparent 50%);
-    padding: 24px 16px 48px;
+    padding: 16px 12px 40px;
+    -webkit-tap-highlight-color: transparent;
   }
   .container { max-width: 1100px; margin: 0 auto; }
-  header { text-align: center; margin-bottom: 20px; }
-  header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: 0.5px; color: var(--accent); }
-  header p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+  header { text-align: center; margin-bottom: 16px; }
+  header h1 {
+    font-size: clamp(1.35rem, 4vw, 1.7rem);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+  }
+  header p { color: var(--muted); margin-top: 4px; font-size: 0.9rem; }
 
   .search-bar {
-    margin-bottom: 20px;
-    max-width: 420px;
+    margin-bottom: 16px;
+    max-width: 440px;
     margin-left: auto;
     margin-right: auto;
     position: relative;
   }
   .search-bar input {
     width: 100%;
-    padding: 12px 40px 12px 14px;
+    padding: 12px 42px 12px 14px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 10px;
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: 16px; /* prevents iOS zoom */
     outline: none;
     transition: border-color 0.2s;
+    -webkit-appearance: none;
   }
   .search-bar input:focus { border-color: var(--highlight); }
   .search-bar input::placeholder { color: var(--muted); }
   .search-bar .clear {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
     background: none; border: none; color: var(--muted); cursor: pointer;
-    font-size: 1.2rem; line-height: 1; display: none; padding: 0;
+    font-size: 1.4rem; line-height: 1; display: none; padding: 6px;
+    min-width: 36px; min-height: 36px;
   }
   .search-bar .clear:hover { color: var(--text); }
 
-  .wrapper { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .wrapper {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
   .table-card {
-    flex: 1; min-width: 0;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
-  .table-wrap { overflow-x: auto; max-height: 70vh; overflow-y: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .table-wrap {
+    overflow-x: auto;
+    max-height: 68vh;
+    max-height: 68dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
   th {
-    text-align: left; padding: 12px 14px; background: var(--header-bg);
-    color: var(--muted); font-weight: 600; font-size: 0.72rem;
-    text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    text-align: left;
+    padding: 11px 12px;
+    background: var(--header-bg);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.35px;
+    white-space: nowrap;
     border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 2;
+    position: sticky;
+    top: 0;
+    z-index: 2;
   }
   th:not(:first-child) { text-align: center; }
-  td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
-  tr:hover td:not(.section-cell) { background: var(--row-hover); }
-  td.name { text-align: left; min-width: 170px; white-space: nowrap; }
-  td.price { text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); min-width: 90px; }
-  td.qty { text-align: center; background: var(--qty-bg); min-width: 70px; }
-  td.qty input {
-    width: 64px; border: 1px solid transparent; background: transparent;
-    text-align: center; font-family: inherit; font-size: inherit;
-    color: var(--accent-hover); font-weight: 600; outline: none;
-    border-radius: 6px; padding: 4px 6px;
+  td {
+    padding: 9px 12px;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
   }
-  td.qty input:focus { background: var(--qty-focus); border-color: var(--highlight); }
-  td.sum { text-align: center; font-variant-numeric: tabular-nums; min-width: 90px; }
+  tr:hover td:not(.section-cell) { background: var(--row-hover); }
+  td.name {
+    text-align: left;
+    min-width: 140px;
+    white-space: nowrap;
+  }
+  td.price {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    min-width: 78px;
+  }
+  td.qty {
+    text-align: center;
+    background: var(--qty-bg);
+    min-width: 110px;
+    padding: 6px 8px;
+  }
+  .qty-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    justify-content: center;
+  }
+  .qty-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    background: var(--btn-bg);
+    color: var(--text);
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    user-select: none;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .qty-btn:hover { background: var(--btn-hover); border-color: var(--highlight); }
+  .qty-btn:active { background: var(--highlight); color: #fff; }
+  td.qty input {
+    width: 48px;
+    border: 1px solid transparent;
+    background: transparent;
+    text-align: center;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--accent-hover);
+    font-weight: 600;
+    outline: none;
+    border-radius: 6px;
+    padding: 5px 2px;
+    -moz-appearance: textfield;
+  }
+  td.qty input::-webkit-outer-spin-button,
+  td.qty input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  td.qty input:focus {
+    background: var(--qty-focus);
+    border-color: var(--highlight);
+  }
+  td.sum {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    min-width: 82px;
+  }
   td.sum-ours { color: var(--accent-hover); font-weight: 600; }
   tr.section td {
-    background: var(--section-bg); font-weight: 700; text-align: left;
-    color: var(--accent-hover); font-size: 0.8rem; text-transform: uppercase;
-    letter-spacing: 0.5px; padding: 10px 14px;
+    background: var(--section-bg);
+    font-weight: 700;
+    text-align: left;
+    color: var(--accent-hover);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
   }
   tr.hidden { display: none; }
 
-  .side { min-width: 260px; max-width: 300px; position: sticky; top: 24px; }
+  .side {
+    min-width: 240px;
+    max-width: 280px;
+    position: sticky;
+    top: 16px;
+    flex-shrink: 0;
+  }
   .side-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   }
   .side table { width: 100%; table-layout: fixed; }
   .side th {
-    text-align: center; position: static; font-size: 0.68rem;
+    text-align: center;
+    position: static;
+    font-size: 0.68rem;
     padding: 10px 8px;
   }
   .side .total td {
-    background: var(--total-bg); font-weight: 700; text-align: center;
-    font-size: 1.05rem; color: var(--accent-hover); padding: 12px 8px;
+    background: var(--total-bg);
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.05rem;
+    color: var(--accent-hover);
+    padding: 12px 8px;
   }
   .side .calc td { background: var(--calc-bg); padding: 10px 12px; }
   .side .result td { background: var(--result-bg); font-weight: 700; padding: 10px 12px; }
   .side td.label {
-    text-align: left; font-weight: 600; color: var(--muted);
-    font-size: 0.85rem; width: 50%;
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.85rem;
+    width: 50%;
   }
   .side td.value {
-    text-align: right; font-variant-numeric: tabular-nums;
-    color: var(--text); font-weight: 600; width: 50%;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    font-weight: 600;
+    width: 50%;
   }
   .side .result td.value { color: var(--accent-hover); }
 
   .note {
-    margin-top: 16px; padding: 12px 14px;
+    margin-top: 14px;
+    padding: 12px 14px;
     background: rgba(248, 81, 73, 0.08);
     border: 1px solid rgba(248, 81, 73, 0.25);
-    border-radius: 8px; font-size: 0.8rem; color: var(--muted); line-height: 1.55;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.55;
   }
   .note strong { color: var(--danger); }
   .no-results {
-    padding: 32px; text-align: center; color: var(--muted); display: none;
+    padding: 32px;
+    text-align: center;
+    color: var(--muted);
+    display: none;
   }
-  @media (max-width: 800px) {
+
+  /* ===== Desktop (wide) ===== */
+  @media (min-width: 901px) {
+    body { padding: 24px 20px 48px; font-size: 15px; }
+    .table-wrap { max-height: 72vh; }
+    td.name { min-width: 170px; }
+    td.price { min-width: 90px; }
+    td.sum { min-width: 90px; }
+    .qty-btn { width: 28px; height: 28px; font-size: 1rem; }
+    td.qty input { width: 52px; font-size: 0.9rem; }
+  }
+
+  /* ===== Tablet / narrow desktop ===== */
+  @media (max-width: 900px) {
     .wrapper { flex-direction: column; }
-    .side { max-width: none; width: 100%; position: static; }
+    .side {
+      max-width: none;
+      width: 100%;
+      position: static;
+      order: -1; /* totals on top on mobile/tablet */
+    }
+    .side-card { display: flex; flex-wrap: wrap; }
+    .side-card > table { flex: 1 1 200px; }
     .table-wrap { max-height: none; }
+  }
+
+  /* ===== Mobile phones ===== */
+  @media (max-width: 600px) {
+    body { padding: 12px 8px 32px; font-size: 14px; }
+    header { margin-bottom: 12px; }
+    header h1 { font-size: 1.3rem; }
+    .search-bar { margin-bottom: 12px; }
+    .search-bar input { padding: 11px 40px 11px 12px; border-radius: 8px; }
+
+    table { font-size: 0.8rem; }
+    th {
+      padding: 9px 6px;
+      font-size: 0.62rem;
+      letter-spacing: 0.2px;
+    }
+    td { padding: 8px 6px; }
+    td.name {
+      min-width: 110px;
+      max-width: 130px;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+    td.price { min-width: 62px; font-size: 0.78rem; }
+    td.sum { min-width: 68px; font-size: 0.78rem; }
+    td.qty {
+      min-width: 100px;
+      padding: 5px 4px;
+    }
+    .qty-btn {
+      width: 34px;
+      height: 34px;
+      font-size: 1.15rem;
+      border-radius: 8px;
+    }
+    td.qty input {
+      width: 42px;
+      font-size: 0.95rem;
+      padding: 6px 0;
+    }
+    tr.section td {
+      font-size: 0.72rem;
+      padding: 9px 8px;
+    }
+
+    .side th { font-size: 0.65rem; padding: 9px 6px; }
+    .side .total td { font-size: 1rem; padding: 11px 6px; }
+    .side .calc td, .side .result td { padding: 9px 10px; }
+    .side td.label { font-size: 0.8rem; }
+    .note { font-size: 0.75rem; padding: 10px 12px; }
+  }
+
+  /* Very small screens */
+  @media (max-width: 380px) {
+    td.name { min-width: 95px; max-width: 110px; font-size: 0.78rem; }
+    td.price, td.sum { min-width: 54px; font-size: 0.72rem; }
+    .qty-btn { width: 30px; height: 30px; }
+    td.qty input { width: 36px; }
   }
 </style>
 </head>
@@ -159,8 +374,8 @@
     </header>
 
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Поиск предмета..." autocomplete="off" spellcheck="false">
-      <button type="button" class="clear" id="clearSearch" title="Очистить">×</button>
+      <input type="text" id="searchInput" placeholder="Поиск предмета..." autocomplete="off" spellcheck="false" inputmode="search">
+      <button type="button" class="clear" id="clearSearch" title="Очистить" aria-label="Очистить поиск">×</button>
     </div>
 
     <div class="wrapper">
@@ -218,6 +433,7 @@
         <div class="note">
           <strong>Примечание:</strong><br>
           Зелёные ячейки (Кол-во) — редактируемые<br>
+          Кнопки + / − и ввод числа<br>
           Суммы и итоги пересчитываются автоматически<br>
           Поиск фильтрует список по названию<br>
           Мясо медведей, гнилое мясо и кишки мутанта пока что не добавлены
@@ -300,10 +516,24 @@ function buildRow(item, flatIdx) {
     '<td class="name">' + item.name + '</td>' +
     '<td class="price">' + fmt(item.p2) + '</td>' +
     '<td class="price">' + fmt(item.pus) + '</td>' +
-    '<td class="qty"><input type="number" min="0" value="' + item.qty + '" data-flat="' + flatIdx + '"></td>' +
+    '<td class="qty">' +
+      '<div class="qty-control">' +
+        '<button type="button" class="qty-btn" data-action="minus" data-flat="' + flatIdx + '" aria-label="Уменьшить">−</button>' +
+        '<input type="number" min="0" inputmode="numeric" value="' + item.qty + '" data-flat="' + flatIdx + '">' +
+        '<button type="button" class="qty-btn" data-action="plus" data-flat="' + flatIdx + '" aria-label="Увеличить">+</button>' +
+      '</div>' +
+    '</td>' +
     '<td class="sum" data-sum2>0</td>' +
     '<td class="sum sum-ours" data-sumus>0</td>';
   return tr;
+}
+
+function setQty(idx, val) {
+  val = Math.max(0, parseInt(val) || 0);
+  flat[idx].qty = val;
+  const input = document.querySelector('input[data-flat="' + idx + '"]');
+  if (input) input.value = val;
+  recalculate();
 }
 
 function render() {
@@ -328,9 +558,18 @@ function render() {
   tbody.querySelectorAll('input').forEach(function(inp) {
     inp.addEventListener('input', function() {
       var idx = +inp.dataset.flat;
-      var val = Math.max(0, parseInt(inp.value) || 0);
-      flat[idx].qty = val;
-      recalculate();
+      setQty(idx, inp.value);
+    });
+    inp.addEventListener('focus', function() {
+      this.select();
+    });
+  });
+
+  tbody.querySelectorAll('.qty-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var idx = +btn.dataset.flat;
+      var delta = btn.dataset.action === 'plus' ? 1 : -1;
+      setQty(idx, flat[idx].qty + delta);
     });
   });
 
