@@ -68,7 +68,7 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     color: var(--text);
-    font-size: 16px; /* prevents iOS zoom */
+    font-size: 16px;
     outline: none;
     transition: border-color 0.2s;
     -webkit-appearance: none;
@@ -198,12 +198,6 @@
     background: var(--qty-focus);
     border-color: var(--highlight);
   }
-  td.sum {
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    min-width: 82px;
-  }
-  td.sum-ours { color: var(--accent-hover); font-weight: 600; }
   tr.section td {
     background: var(--section-bg);
     font-weight: 700;
@@ -287,7 +281,6 @@
     .table-wrap { max-height: 72vh; }
     td.name { min-width: 170px; }
     td.price { min-width: 90px; }
-    td.sum { min-width: 90px; }
     .qty-btn { width: 28px; height: 28px; font-size: 1rem; }
     td.qty input { width: 52px; font-size: 0.9rem; }
   }
@@ -299,7 +292,7 @@
       max-width: none;
       width: 100%;
       position: static;
-      order: -1; /* totals on top on mobile/tablet */
+      order: -1;
     }
     .side-card { display: flex; flex-wrap: wrap; }
     .side-card > table { flex: 1 1 200px; }
@@ -323,13 +316,12 @@
     td { padding: 8px 6px; }
     td.name {
       min-width: 110px;
-      max-width: 130px;
+      max-width: 140px;
       white-space: normal;
       word-break: break-word;
       line-height: 1.3;
     }
     td.price { min-width: 62px; font-size: 0.78rem; }
-    td.sum { min-width: 68px; font-size: 0.78rem; }
     td.qty {
       min-width: 100px;
       padding: 5px 4px;
@@ -359,8 +351,8 @@
 
   /* Very small screens */
   @media (max-width: 380px) {
-    td.name { min-width: 95px; max-width: 110px; font-size: 0.78rem; }
-    td.price, td.sum { min-width: 54px; font-size: 0.72rem; }
+    td.name { min-width: 95px; max-width: 120px; font-size: 0.78rem; }
+    td.price { min-width: 54px; font-size: 0.72rem; }
     .qty-btn { width: 30px; height: 30px; }
     td.qty input { width: 36px; }
   }
@@ -388,8 +380,6 @@
                 <th>Цена 2 ранг</th>
                 <th>Цена у нас</th>
                 <th>Кол-во</th>
-                <th>Сумма 2 ранг</th>
-                <th>Сумма у нас</th>
               </tr>
             </thead>
             <tbody id="tbody"></tbody>
@@ -522,9 +512,7 @@ function buildRow(item, flatIdx) {
         '<input type="number" min="0" inputmode="numeric" value="' + item.qty + '" data-flat="' + flatIdx + '">' +
         '<button type="button" class="qty-btn" data-action="plus" data-flat="' + flatIdx + '" aria-label="Увеличить">+</button>' +
       '</div>' +
-    '</td>' +
-    '<td class="sum" data-sum2>0</td>' +
-    '<td class="sum sum-ours" data-sumus>0</td>';
+    '</td>';
   return tr;
 }
 
@@ -545,7 +533,7 @@ function render() {
     const secTr = document.createElement('tr');
     secTr.className = 'section';
     secTr.dataset.section = sec.title.toLowerCase();
-    secTr.innerHTML = '<td class="section-cell" colspan="6">' + sec.title + '</td>';
+    secTr.innerHTML = '<td class="section-cell" colspan="4">' + sec.title + '</td>';
     tbody.appendChild(secTr);
 
     sec.items.forEach(function(item) {
@@ -579,15 +567,9 @@ function render() {
 
 function recalculate() {
   var total2 = 0, totalUs = 0;
-  document.querySelectorAll('#tbody tr[data-flat]').forEach(function(tr) {
-    var idx = +tr.dataset.flat;
-    var item = flat[idx];
-    var s2 = item.p2 * item.qty;
-    var sus = item.pus * item.qty;
-    tr.querySelector('[data-sum2]').textContent = fmt(s2);
-    tr.querySelector('[data-sumus]').textContent = fmt(sus);
-    total2 += s2;
-    totalUs += sus;
+  flat.forEach(function(item) {
+    total2 += item.p2 * item.qty;
+    totalUs += item.pus * item.qty;
   });
   document.getElementById('total2').textContent = fmt(total2);
   document.getElementById('totalUs').textContent = fmt(totalUs);
